@@ -66,11 +66,11 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_category"
-        android:layout_width="367dp"
-        android:layout_height="69dp"
-        android:layout_marginStart="18dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="18dp"
+        android:layout_marginEnd="16dp"
         android:orientation="horizontal"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintEnd_toEndOf="parent"
@@ -95,10 +95,10 @@
         android:id="@+id/rv_expense"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="18dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="18dp"
-        android:layout_marginBottom="18dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/menu_expenses"
         android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -107,7 +107,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_expenditure_label"
         tools:listitem="@layout/item_list_expenses" />
-
 
     <Button
         android:id="@+id/btn_add_expenses"

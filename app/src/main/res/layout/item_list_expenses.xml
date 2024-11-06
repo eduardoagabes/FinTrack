@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="2dp"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:padding="2dp">
+
+    <View
+        android:id="@+id/set_color_expense"
+        android:layout_width="8dp"
+        android:layout_height="49dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/color_expense"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_expenses"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/iv_expenses" />
 
     <ImageView
         android:id="@+id/iv_expenses"
@@ -13,6 +23,7 @@
         android:layout_margin="16dp"
         android:background="@drawable/filter_chips_background"
         android:contentDescription="@null"
+        android:scaleType="centerInside"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -29,29 +40,20 @@
         app:layout_constraintEnd_toStartOf="@+id/set_color_expense"
         app:layout_constraintStart_toEndOf="@id/iv_expenses"
         app:layout_constraintTop_toTopOf="@id/iv_expenses"
-        android:text="Spotify" />
+        tools:text="Spotify" />
 
     <TextView
         android:id="@+id/tv_value"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="16dp"
-        android:text="- $ 124,50"
         android:textColor="@color/white"
         android:textSize="13sp"
         app:layout_constraintEnd_toStartOf="@+id/set_color_expense"
-        app:layout_constraintStart_toEndOf="@+id/iv_expenses"
-        app:layout_constraintTop_toBottomOf="@+id/tv_name_expense" />
-
-    <View
-        android:id="@+id/set_color_expense"
-        android:layout_width="8dp"
-        android:layout_height="49dp"
-        android:layout_marginEnd="16dp"
-        android:background="@drawable/color_expense"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_expenses"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/iv_expenses" />
+        app:layout_constraintStart_toStartOf="@+id/tv_name_expense"
+        app:layout_constraintTop_toBottomOf="@+id/tv_name_expense"
+        tools:text="- $ 124,50" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

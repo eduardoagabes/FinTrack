@@ -1,5 +1,6 @@
 package com.eduardoagabes.fintrack
 
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,13 +10,13 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 
-class ExpensesListAdapter : ListAdapter<ExpensesUiData, ExpensesListAdapter.ExpensesViewHolder>(ExpensesDiffUtils()) {
+class ExpensesListAdapter :
+    ListAdapter<ExpensesUiData, ExpensesListAdapter.ExpensesViewHolder>(ExpensesDiffUtils()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExpensesViewHolder {
         val view =
             LayoutInflater.from(parent.context).inflate(R.layout.item_list_expenses, parent, false)
         return ExpensesViewHolder(view)
-
     }
 
     override fun onBindViewHolder(holder: ExpensesViewHolder, position: Int) {
@@ -32,21 +33,22 @@ class ExpensesListAdapter : ListAdapter<ExpensesUiData, ExpensesListAdapter.Expe
         fun bind(expensesUiData: ExpensesUiData) {
             ivExpenses.setImageResource(expensesUiData.icon)
             tvName.text = expensesUiData.name
-            tvValue.text = expensesUiData.value
+            tvValue.text = "- $ ${expensesUiData.value}"
 
-            setColor.setBackgroundColor(expensesUiData.color)
+
+            val background = setColor.background as GradientDrawable
+            background.setColor(expensesUiData.color)
 
         }
-
     }
 
     class ExpensesDiffUtils : DiffUtil.ItemCallback<ExpensesUiData>() {
         override fun areItemsTheSame(oldItem: ExpensesUiData, newItem: ExpensesUiData): Boolean {
-            return oldItem.icon == newItem.icon
+            return oldItem == newItem
         }
 
         override fun areContentsTheSame(oldItem: ExpensesUiData, newItem: ExpensesUiData): Boolean {
-            return oldItem == newItem
+            return oldItem.name == newItem.name
         }
     }
 }

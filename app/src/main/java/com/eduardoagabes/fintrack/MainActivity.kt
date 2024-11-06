@@ -23,12 +23,11 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+
         val rvListCategories = findViewById<RecyclerView>(R.id.rv_category)
         val adapterCategory = CategoryListAdapter()
-        rvListCategories.adapter = adapterCategory
         rvListCategories.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        adapterCategory.submitList(categories)
 
         val rvListExpenses = findViewById<RecyclerView>(R.id.rv_expense)
         val adapterExpenses = ExpensesListAdapter()
@@ -36,8 +35,32 @@ class MainActivity : AppCompatActivity() {
         rvListExpenses.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         adapterExpenses.submitList(expenses)
+
+        adapterCategory.setOnClickListener { selected ->
+            val categoryTemp = categories.map { item ->
+                when {
+                    item.icon == selected.icon && !item.isSelected -> item.copy(isSelected = true)
+                    item.icon == selected.icon && item.isSelected -> item.copy(isSelected = false)
+                    else -> item
+
+                }
+            }
+
+            val expensesTemp =
+                expenses.filter { it.icon == selected.icon }
+            adapterExpenses.submitList(expensesTemp)
+            adapterCategory.submitList(categoryTemp)
+        }
+
+        rvListCategories.adapter = adapterCategory
+        adapterCategory.submitList(categories)
+
+        rvListExpenses.adapter = adapterExpenses
+        adapterExpenses.submitList(expenses)
     }
+
 }
+
 
 val categories = listOf(
     CategoryUiData(
@@ -82,13 +105,15 @@ val categories = listOf(
     ),
 )
 
+
+
 val expenses = listOf(
     ExpensesUiData(
         isSelected = false,
-        R.drawable.ic_key,
+        icon = R.drawable.ic_key,
         name = "Key",
         value = "- $ 108,87",
-        color = R.color.white
+        color = R.color.red
     ),
     ExpensesUiData(
         isSelected = false,
