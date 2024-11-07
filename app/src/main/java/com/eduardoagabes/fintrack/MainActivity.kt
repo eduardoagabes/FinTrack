@@ -25,87 +25,103 @@ class MainActivity : AppCompatActivity() {
 
 
         val rvListCategories = findViewById<RecyclerView>(R.id.rv_category)
-        val adapterCategory = CategoryListAdapter()
+        val rvListExpenses = findViewById<RecyclerView>(R.id.rv_expense)
+
+        val categoryAdapter = CategoryListAdapter()
+        val expensesAdapter = ExpensesListAdapter()
+
         rvListCategories.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
-        val rvListExpenses = findViewById<RecyclerView>(R.id.rv_expense)
-        val adapterExpenses = ExpensesListAdapter()
-        rvListExpenses.adapter = adapterExpenses
         rvListExpenses.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-        adapterExpenses.submitList(expenses)
 
-        adapterCategory.setOnClickListener { selected ->
+        categoryAdapter.setOnClickListener { selected ->
             val categoryTemp = categories.map { item ->
                 when {
                     item.icon == selected.icon && !item.isSelected -> item.copy(isSelected = true)
                     item.icon == selected.icon && item.isSelected -> item.copy(isSelected = false)
                     else -> item
-
                 }
             }
 
-            val expensesTemp =
-                expenses.filter { it.icon == selected.icon }
-            adapterExpenses.submitList(expensesTemp)
-            adapterCategory.submitList(categoryTemp)
+            val expenseTemp =
+                if (selected.name != "ALL") {
+                    expenses.filter { it.icon == selected.icon }
+                } else {
+                    expenses
+                }
+            expensesAdapter.submitList(expenseTemp)
+
+            categoryAdapter.submitList(categoryTemp)
         }
 
-        rvListCategories.adapter = adapterCategory
-        adapterCategory.submitList(categories)
+        rvListCategories.adapter = categoryAdapter
+        categoryAdapter.submitList(categories)
 
-        rvListExpenses.adapter = adapterExpenses
-        adapterExpenses.submitList(expenses)
+        rvListExpenses.adapter = expensesAdapter
+        expensesAdapter.submitList(expenses)
     }
 
 }
 
-
 val categories = listOf(
     CategoryUiData(
+        name = "ALL",
+        isSelected = false,
+        R.drawable.add_all
+    ),
+    CategoryUiData(
+        name = "Key",
         isSelected = false,
         R.drawable.ic_key
     ),
     CategoryUiData(
+        name = "Car",
         isSelected = false,
         R.drawable.ic_car
     ),
     CategoryUiData(
+        name = "Gasoline",
         isSelected = false,
         R.drawable.ic_gas
     ),
     CategoryUiData(
+        name = "Food",
         isSelected = false,
         R.drawable.ic_food
     ),
     CategoryUiData(
+        name = "Clothes",
         isSelected = false,
         R.drawable.ic_clothes
     ),
     CategoryUiData(
+        name = "Ligth",
         isSelected = false,
         R.drawable.ic_eletricity
     ),
     CategoryUiData(
+        name = "Graphic",
         isSelected = false,
         R.drawable.ic_graphic
     ),
     CategoryUiData(
+        name = "Credit_card",
         isSelected = false,
         R.drawable.ic_credit_card
     ),
     CategoryUiData(
+        name = "Game",
         isSelected = true,
         R.drawable.ic_game
     ),
     CategoryUiData(
+        name = "Internet",
         isSelected = false,
         R.drawable.ic_internet
     ),
 )
-
-
 
 val expenses = listOf(
     ExpensesUiData(
