@@ -1,9 +1,9 @@
 package com.eduardoagabes.fintrack
 
-import androidx.annotation.DrawableRes
 
 data class CategoryUiData(
-    val name: String,
+    val id: Long,
+    val category: Int,
     val isSelected: Boolean,
-    @DrawableRes val icon: Int
+    val color: Int = R.color.white
 )

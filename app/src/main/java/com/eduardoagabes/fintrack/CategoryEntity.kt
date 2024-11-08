@@ -1,18 +1,17 @@
 package com.eduardoagabes.fintrack
 
-import androidx.annotation.DrawableRes
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(indices = [Index(value = ["key"], unique = true)])
 data class CategoryEntity(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val id: Long = 0,
     @ColumnInfo("key")
-    val name: String,
+    val category: Int,
     @ColumnInfo("is_selected")
     val isSelected: Boolean,
-    @ColumnInfo("icon")
-    @DrawableRes val icon: Int
+    val color: Int
 )

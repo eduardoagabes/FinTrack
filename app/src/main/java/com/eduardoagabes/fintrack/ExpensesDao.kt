@@ -5,13 +5,12 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
-
 @Dao
-interface CategoryDao {
+interface ExpensesDao {
 
-    @Query("Select * From categoryentity")
-    fun getAll():List<CategoryEntity>
+    @Query("Select * From expensesentity")
+    fun getAll(): List<ExpensesEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(categoryEntity: List<CategoryEntity>)
+    fun insertAll(expensesEntities: List<ExpensesEntity>)
 }

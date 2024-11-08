@@ -32,7 +32,7 @@ class CategoryListAdapter :
         private val ivCategory = view.findViewById<ImageView>(R.id.icon_category)
 
         fun bind(categoryUiData: CategoryUiData, onClick: (CategoryUiData) -> Unit) {
-            ivCategory.setImageResource(categoryUiData.icon)
+            ivCategory.setImageResource(categoryUiData.category)
 
             ivCategory.isSelected = categoryUiData.isSelected
 
@@ -55,7 +55,7 @@ class CategoryListAdapter :
         }
 
         override fun areContentsTheSame(oldItem: CategoryUiData, newItem: CategoryUiData): Boolean {
-            return oldItem.icon == newItem.icon
+            return oldItem.category == newItem.category
         }
 
     }
