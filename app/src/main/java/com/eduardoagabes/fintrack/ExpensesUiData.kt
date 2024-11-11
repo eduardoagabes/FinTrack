@@ -4,6 +4,6 @@ data class ExpensesUiData(
     val id: Long = 0,
     val name: String,
     val value: String,
-    var icon: Int,
+    var category: Int,
     var color: Int
 )

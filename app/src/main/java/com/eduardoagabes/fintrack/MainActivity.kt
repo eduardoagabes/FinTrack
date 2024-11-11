@@ -26,6 +26,10 @@ class MainActivity : AppCompatActivity() {
         db.getCategoryDao()
     }
 
+    private val expensesDao: ExpensesDao by lazy {
+        db.getExpensesDao()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -34,10 +38,6 @@ class MainActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
-        }
-
-        GlobalScope.launch(Dispatchers.IO) {
-            insertDefaultCategory()
         }
 
         val rvListCategories = findViewById<RecyclerView>(R.id.rv_category)
@@ -53,56 +53,29 @@ class MainActivity : AppCompatActivity() {
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         categoryAdapter.setOnClickListener { selected ->
-            val categoryTemp = categories.map { item ->
-                when {
-                    item.category == selected.category && !item.isSelected -> item.copy(isSelected = true)
-                    item.category == selected.category && item.isSelected -> item.copy(isSelected = false)
-                    else -> item
-                }
-            }
+/*val categoryTemp = categories.map { item ->
+    when {
+        item.category == selected.category && !item.isSelected -> item.copy(isSelected = true)
+        item.category == selected.category && item.isSelected -> item.copy(isSelected = false)
+        else -> item
+    }
+}
 
-            val expenseTemp =
-                if (selected.category != R.drawable.ic_all) {
-                    expenses.filter { it.icon == selected.category }
-                } else {
-                    expenses
-                }
-            expensesAdapter.submitList(expenseTemp)
-            categoryAdapter.submitList(categoryTemp)
+val expenseTemp =
+    if (selected.category != R.drawable.ic_all) {
+        expenses.filter { it.category == selected.category }
+    } else {
+        expenses
+    }
+expensesAdapter.submitList(expenseTemp)
+categoryAdapter.submitList(categoryTemp)*/
         }
 
         rvListCategories.adapter = categoryAdapter
         getCategoriesFromDataBase(categoryAdapter)
 
         rvListExpenses.adapter = expensesAdapter
-        expensesAdapter.submitList(expenses)
-    }
-
-    private fun insertDefaultCategory() {
-        val categoriesEntity = categories.map {
-            CategoryEntity(
-                category = it.category,
-                isSelected = it.isSelected,
-                color = it.color
-            )
-        }
-
-        GlobalScope.launch(Dispatchers.IO) {
-            categoryDao.insertAll(categoriesEntity)
-
-        }
-    }
-
-    private fun insertDefaultExpenses() {
-        val expensesEntities = expenses.map {
-            ExpensesEntity(
-                name = it.name,
-                value = it.value,
-                category = it.icon,
-                color = it.color,
-
-                )
-        }
+        getExpensesFromDataBase(expensesAdapter)
     }
 
     private fun getCategoriesFromDataBase(adapter: CategoryListAdapter) {
@@ -119,151 +92,21 @@ class MainActivity : AppCompatActivity() {
             adapter.submitList(categoriesUiData)
         }
     }
+
+    private fun getExpensesFromDataBase(adapter: ExpensesListAdapter) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val expensesFromDb: List<ExpensesEntity> = expensesDao.getAll()
+            val expensesUiData = expensesFromDb.map {
+                ExpensesUiData(
+                    id = it.id,
+                    name = it.name,
+                    value = it.value,
+                    category = it.category,
+                    color = it.color
+                )
+            }
+            adapter.submitList(expensesUiData)
+
+        }
+    }
 }
-
-val categories = listOf(
-    CategoryUiData(
-        id = 0,
-        category = R.drawable.ic_all,
-        isSelected = false,
-        color = R.color.white
-    ),
-    CategoryUiData(
-        id = 0,
-        category = R.drawable.ic_key,
-        isSelected = false,
-        color = R.color.white
-    ),
-    CategoryUiData(
-        id = 0,
-        category = R.drawable.ic_car,
-        isSelected = false,
-        color = R.color.white
-
-    ),
-    CategoryUiData(
-        id = 0,
-        isSelected = false,
-        category = R.drawable.ic_gas,
-        color = R.color.white
-
-    ),
-    CategoryUiData(
-        id = 0,
-        isSelected = false,
-        category = R.drawable.ic_food,
-        color = R.color.white
-    ),
-    CategoryUiData(
-        id = 0,
-        isSelected = false,
-        category = R.drawable.ic_clothes,
-        color = R.color.white
-    ),
-    CategoryUiData(
-        id = 0,
-        isSelected = false,
-        category = R.drawable.ic_eletricity,
-        color = R.color.white
-
-    ),
-    CategoryUiData(
-        id = 0,
-        isSelected = false,
-        category = R.drawable.ic_graphic,
-        color = R.color.white
-    ),
-    CategoryUiData(
-        id = 0,
-        isSelected = false,
-        category = R.drawable.ic_credit_card,
-        color = R.color.white
-
-    ),
-    CategoryUiData(
-        id = 0,
-        isSelected = false,
-        category = R.drawable.ic_game,
-        color = R.color.white
-
-    ),
-    CategoryUiData(
-        id = 0,
-        isSelected = false,
-        category = R.drawable.ic_internet,
-        color = R.color.white
-    ),
-)
-
-val expenses = listOf(
-    ExpensesUiData(
-        id = 1,
-        name = "Key",
-        value = "108,87",
-        icon = R.drawable.ic_key,
-        color = R.color.white
-    ),
-    ExpensesUiData(
-        id = 1,
-        name = "Car",
-        value = "80,26",
-        R.drawable.ic_car,
-        color = R.color.white
-    ),
-    ExpensesUiData(
-        id = 1,
-        name = "Gasoline",
-        value = "50,19",
-        R.drawable.ic_gas,
-        color = R.color.white
-    ),
-    ExpensesUiData(
-        id = 1,
-        name = "Food",
-        value = "80,19",
-        R.drawable.ic_food,
-        color = R.color.white
-    ),
-    ExpensesUiData(
-        id = 1,
-        name = "Clothes",
-        value = "20,00",
-        R.drawable.ic_clothes,
-        color = R.color.white
-    ),
-    ExpensesUiData(
-        id = 1,
-        name = "Eletricity",
-        value = "150,00",
-        R.drawable.ic_eletricity,
-        color = R.color.white
-    ),
-    ExpensesUiData(
-        id = 1,
-        name = "Graphic",
-        value = "250,00",
-        R.drawable.ic_graphic,
-        color = R.color.white
-    ),
-    ExpensesUiData(
-        id = 1,
-        name = "Credit Card",
-        value = "500,00",
-        R.drawable.ic_credit_card,
-        color = R.color.white
-    ),
-    ExpensesUiData(
-        id = 1,
-        name = "Game",
-        value = "35,00",
-        R.drawable.ic_game,
-        color = R.color.white
-    ),
-    ExpensesUiData(
-        id = 1,
-        name = "Eletricity",
-        value = "90,00",
-        R.drawable.ic_internet,
-        color = R.color.white
-    ),
-)

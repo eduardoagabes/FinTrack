@@ -31,7 +31,7 @@ class ExpensesListAdapter :
         private val setColor = view.findViewById<View>(R.id.set_color_expense)
 
         fun bind(expensesUiData: ExpensesUiData) {
-            ivExpenses.setImageResource(expensesUiData.icon)
+            ivExpenses.setImageResource(expensesUiData.category)
             tvName.text = expensesUiData.name
             tvValue.text = "- $ ${expensesUiData.value}"
 
