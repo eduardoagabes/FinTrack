@@ -45,7 +45,6 @@ dependencies {
     implementation(libs.material.v1110)
     implementation(libs.androidx.constraintlayout.v220)
 
-    //Room database
     implementation(libs.androidx.room.runtime)
     annotationProcessor(libs.androidx.room.compiler)
     kapt("androidx.room:room-compiler:$room_version")

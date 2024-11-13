@@ -1,0 +1,6 @@
+<!-- res/drawable/color_circle_background.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#8BFFFFFF"/>
+    <size android:width="40dp" android:height="40dp"/>
+    <corners android:radius="20dp"/>
+</shape>

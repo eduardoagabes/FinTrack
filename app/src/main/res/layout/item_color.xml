@@ -1,0 +1,14 @@
+<!-- res/layout/color_item.xml -->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:layout_margin="4dp"
+    android:gravity="center">
+
+    <View
+        android:id="@+id/view_color"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/color_circle_bg" /> <!-- Aplicando o drawable circular -->
+</FrameLayout>

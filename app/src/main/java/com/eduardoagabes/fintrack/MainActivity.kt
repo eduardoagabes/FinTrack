@@ -15,6 +15,9 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
+    private var categories = listOf<CategoryUiData>()
+    private var expenses = listOf<ExpensesUiData>()
+
     private val db by lazy {
         Room.databaseBuilder(
             applicationContext,
@@ -46,6 +49,8 @@ class MainActivity : AppCompatActivity() {
         val categoryAdapter = CategoryListAdapter()
         val expensesAdapter = ExpensesListAdapter()
 
+
+
         rvListCategories.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
@@ -53,22 +58,36 @@ class MainActivity : AppCompatActivity() {
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         categoryAdapter.setOnClickListener { selected ->
-/*val categoryTemp = categories.map { item ->
-    when {
-        item.category == selected.category && !item.isSelected -> item.copy(isSelected = true)
-        item.category == selected.category && item.isSelected -> item.copy(isSelected = false)
-        else -> item
-    }
-}
+            if (selected.category == R.drawable.ic_add) {
 
-val expenseTemp =
-    if (selected.category != R.drawable.ic_all) {
-        expenses.filter { it.category == selected.category }
-    } else {
-        expenses
-    }
-expensesAdapter.submitList(expenseTemp)
-categoryAdapter.submitList(categoryTemp)*/
+                val createCategoryBottomSheet = CreateCategoryBottomSheet()
+
+                createCategoryBottomSheet.show(supportFragmentManager, "createCategoryBottomSheet")
+
+            } else {
+                val categoryTemp = categories.map { item ->
+                    when {
+                        item.category == selected.category && !item.isSelected -> item.copy(
+                            isSelected = true
+                        )
+
+                        item.category == selected.category && item.isSelected -> item.copy(
+                            isSelected = false
+                        )
+
+                        else -> item
+                    }
+                }
+
+                val expenseTemp =
+                    if (selected.category != R.drawable.ic_all) {
+                        expenses.filter { it.category == selected.category }
+                    } else {
+                        expenses
+                    }
+                expensesAdapter.submitList(expenseTemp)
+                categoryAdapter.submitList(categoryTemp)
+            }
         }
 
         rvListCategories.adapter = categoryAdapter
@@ -88,8 +107,21 @@ categoryAdapter.submitList(categoryTemp)*/
                     isSelected = it.isSelected,
                     color = it.color
                 )
+            }.toMutableList()
+
+            categoriesUiData.add(
+                CategoryUiData(
+                    id = 0,
+                    category = R.drawable.ic_add,
+                    isSelected = false,
+                    color = R.color.white
+                )
+            )
+
+            GlobalScope.launch(Dispatchers.Main) {
+                categories = categoriesUiData
+                adapter.submitList(categoriesUiData)
             }
-            adapter.submitList(categoriesUiData)
         }
     }
 
@@ -105,8 +137,11 @@ categoryAdapter.submitList(categoryTemp)*/
                     color = it.color
                 )
             }
-            adapter.submitList(expensesUiData)
 
+            GlobalScope.launch(Dispatchers.Main) {
+                expenses = expensesUiData
+                adapter.submitList(expensesUiData)
+            }
         }
     }
 }
