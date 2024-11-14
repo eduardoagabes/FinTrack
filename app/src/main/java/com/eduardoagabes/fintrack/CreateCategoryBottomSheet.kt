@@ -7,20 +7,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-class CreateCategoryBottomSheet
- : BottomSheetDialogFragment() {
+class CreateCategoryBottomSheet(
+    private val onCreateClicked: (Int, Int) -> Unit
+) : BottomSheetDialogFragment() {
 
     private var selectedCategory: CategoryUiData? = null
     private var selectedColor: Int = R.color.white
     private var selectedButton: Button? = null
     private var categoriesEntity = listOf<CategoryEntity>()
-
-    private lateinit var colorAdapter: ColorAdapter
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,14 +28,41 @@ class CreateCategoryBottomSheet
     ): View? {
         val view = inflater.inflate(R.layout.create_category_botton_sheet, container, false)
 
-        val rvColors = view.findViewById<RecyclerView>(R.id.rv_set_color)
-        rvColors.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-
-
         val rvCreateCategory = view.findViewById<RecyclerView>(R.id.rv_selecet_category)
-        rvCreateCategory.layoutManager = LinearLayoutManager(context).apply {
-            orientation = LinearLayoutManager.HORIZONTAL
+        val btnCreate = view.findViewById<Button>(R.id.btn_category_create)
+        val rvColors = view.findViewById<RecyclerView>(R.id.rv_set_color)
+
+        btnCreate.setOnClickListener {
+            val category = selectedCategory?.category ?: R.drawable.ic_home
+            val color = selectedColor
+            onCreateClicked.invoke(category, color)
+            dismiss()
         }
+
+        rvColors.adapter = ColorAdapter(
+            listOf(
+                ContextCompat.getColor(requireContext(), R.color.white),
+                ContextCompat.getColor(requireContext(), R.color.grey),
+                ContextCompat.getColor(requireContext(), R.color.light_orange),
+                ContextCompat.getColor(requireContext(), R.color.light_yellow),
+                ContextCompat.getColor(requireContext(), R.color.water_blue),
+                ContextCompat.getColor(requireContext(), R.color.green),
+                ContextCompat.getColor(requireContext(), R.color.red),
+                ContextCompat.getColor(requireContext(), R.color.black),
+                ContextCompat.getColor(requireContext(), R.color.pink),
+                ContextCompat.getColor(requireContext(), R.color.blue),
+                ContextCompat.getColor(requireContext(), R.color.brown),
+                ContextCompat.getColor(requireContext(), R.color.violet)
+            )
+        ) { selectedColor ->
+            this.selectedColor = selectedColor
+        }
+
+        rvCreateCategory.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+
+        rvColors.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
         val listCategories = mutableListOf<CategoryUiData>()
         getCategory(listCategories)
@@ -49,15 +75,8 @@ class CreateCategoryBottomSheet
             categoriesAdapter.notifyDataSetChanged()
         }
 
-        colorAdapter = ColorAdapter(listOf(Color.RED, Color.GREEN, Color.BLUE)) { color ->
-            selectedColor = color
-            colorAdapter.notifyDataSetChanged()
-        }
-
         rvCreateCategory.adapter = categoriesAdapter
         categoriesAdapter.submitList(listCategories)
-
-        rvColors.adapter = colorAdapter
 
         return view
     }

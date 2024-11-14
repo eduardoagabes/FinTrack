@@ -60,7 +60,14 @@ class MainActivity : AppCompatActivity() {
         categoryAdapter.setOnClickListener { selected ->
             if (selected.category == R.drawable.ic_add) {
 
-                val createCategoryBottomSheet = CreateCategoryBottomSheet()
+                val createCategoryBottomSheet = CreateCategoryBottomSheet { category, color ->
+                    val categoryEntity = CategoryEntity(
+                        category = category,
+                        color = color,
+                        isSelected = false
+                    )
+                    insertCategory(categoryEntity)
+                }
 
                 createCategoryBottomSheet.show(supportFragmentManager, "createCategoryBottomSheet")
 
@@ -144,4 +151,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    private fun insertCategory(categoryEntity: CategoryEntity) {
+        GlobalScope.launch(Dispatchers.IO) {
+            categoryDao.insert(categoryEntity)
+        }
+
+    }
+
 }
