@@ -18,6 +18,9 @@ class MainActivity : AppCompatActivity() {
     private var categories = listOf<CategoryUiData>()
     private var expenses = listOf<ExpensesUiData>()
 
+    private val categoryAdapter = CategoryListAdapter()
+
+
     private val db by lazy {
         Room.databaseBuilder(
             applicationContext,
@@ -46,10 +49,7 @@ class MainActivity : AppCompatActivity() {
         val rvListCategories = findViewById<RecyclerView>(R.id.rv_category)
         val rvListExpenses = findViewById<RecyclerView>(R.id.rv_expense)
 
-        val categoryAdapter = CategoryListAdapter()
         val expensesAdapter = ExpensesListAdapter()
-
-
 
         rvListCategories.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -59,7 +59,6 @@ class MainActivity : AppCompatActivity() {
 
         categoryAdapter.setOnClickListener { selected ->
             if (selected.category == R.drawable.ic_add) {
-
                 val createCategoryBottomSheet = CreateCategoryBottomSheet { category, color ->
                     val categoryEntity = CategoryEntity(
                         category = category,
@@ -68,7 +67,6 @@ class MainActivity : AppCompatActivity() {
                     )
                     insertCategory(categoryEntity)
                 }
-
                 createCategoryBottomSheet.show(supportFragmentManager, "createCategoryBottomSheet")
 
             } else {
@@ -98,38 +96,39 @@ class MainActivity : AppCompatActivity() {
         }
 
         rvListCategories.adapter = categoryAdapter
-        getCategoriesFromDataBase(categoryAdapter)
+        GlobalScope.launch(Dispatchers.IO) {
+            getCategoriesFromDataBase()
+        }
 
         rvListExpenses.adapter = expensesAdapter
         getExpensesFromDataBase(expensesAdapter)
     }
 
-    private fun getCategoriesFromDataBase(adapter: CategoryListAdapter) {
-        GlobalScope.launch(Dispatchers.IO) {
-            val categoriesFromDb: List<CategoryEntity> = categoryDao.getAll()
-            val categoriesUiData = categoriesFromDb.map {
-                CategoryUiData(
-                    id = it.id,
-                    category = it.category,
-                    isSelected = it.isSelected,
-                    color = it.color
-                )
-            }.toMutableList()
-
-            categoriesUiData.add(
-                CategoryUiData(
-                    id = 0,
-                    category = R.drawable.ic_add,
-                    isSelected = false,
-                    color = R.color.white
-                )
+    private fun getCategoriesFromDataBase() {
+        val categoriesFromDb: List<CategoryEntity> = categoryDao.getAll()
+        val categoriesUiData = categoriesFromDb.map {
+            CategoryUiData(
+                id = it.id,
+                category = it.category,
+                isSelected = it.isSelected,
+                color = it.color
             )
+        }.toMutableList()
 
-            GlobalScope.launch(Dispatchers.Main) {
-                categories = categoriesUiData
-                adapter.submitList(categoriesUiData)
-            }
+        categoriesUiData.add(
+            CategoryUiData(
+                id = 0,
+                category = R.drawable.ic_add,
+                isSelected = false,
+                color = R.color.white
+            )
+        )
+
+        GlobalScope.launch(Dispatchers.Main) {
+            categories = categoriesUiData
+            categoryAdapter.submitList(categoriesUiData)
         }
+
     }
 
     private fun getExpensesFromDataBase(adapter: ExpensesListAdapter) {
@@ -155,8 +154,7 @@ class MainActivity : AppCompatActivity() {
     private fun insertCategory(categoryEntity: CategoryEntity) {
         GlobalScope.launch(Dispatchers.IO) {
             categoryDao.insert(categoryEntity)
+            getCategoriesFromDataBase()
         }
-
     }
-
 }

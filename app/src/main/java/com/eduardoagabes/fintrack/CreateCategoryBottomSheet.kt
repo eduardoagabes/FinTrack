@@ -1,7 +1,6 @@
 package com.eduardoagabes.fintrack
 
 import ColorAdapter
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,20 +17,19 @@ class CreateCategoryBottomSheet(
 
     private var selectedCategory: CategoryUiData? = null
     private var selectedColor: Int = R.color.white
-    private var selectedButton: Button? = null
-    private var categoriesEntity = listOf<CategoryEntity>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.create_category_botton_sheet, container, false)
+        val view = inflater.inflate(R.layout.create_category_bottom_sheet, container, false)
 
         val rvCreateCategory = view.findViewById<RecyclerView>(R.id.rv_selecet_category)
         val btnCreate = view.findViewById<Button>(R.id.btn_category_create)
         val rvColors = view.findViewById<RecyclerView>(R.id.rv_set_color)
 
+        // poner snackbar
         btnCreate.setOnClickListener {
             val category = selectedCategory?.category ?: R.drawable.ic_home
             val color = selectedColor
@@ -68,10 +66,10 @@ class CreateCategoryBottomSheet(
         getCategory(listCategories)
 
         val categoriesAdapter = CategoryListAdapter()
-        categoriesAdapter.setOnClickListener { categoria ->
+        categoriesAdapter.setOnClickListener { category ->
             listCategories.forEach { it.isSelected = false }
-            categoria.isSelected = true
-            selectedCategory = categoria
+            category.isSelected = true
+            selectedCategory = category
             categoriesAdapter.notifyDataSetChanged()
         }
 

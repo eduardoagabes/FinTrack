@@ -11,6 +11,8 @@ class ColorAdapter(
     private val onColorSelected: (Int) -> Unit
 ) : RecyclerView.Adapter<ColorAdapter.ColorViewHolder>() {
 
+    private var selectedPosition: Int = RecyclerView.NO_POSITION
+
     inner class ColorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val viewColor: View = itemView.findViewById(R.id.view_color)
 
@@ -22,7 +24,18 @@ class ColorAdapter(
                 viewColor.background = it
             }
 
-            itemView.setOnClickListener { onColorSelected(color) }
+            viewColor.alpha = if (adapterPosition == selectedPosition) 1.0f else 0.5f
+
+            itemView.setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    val previousPosition = selectedPosition
+                    selectedPosition = position
+                    notifyItemChanged(previousPosition)
+                    notifyItemChanged(selectedPosition)
+                    onColorSelected(colors[position])
+                }
+            }
         }
     }
 
