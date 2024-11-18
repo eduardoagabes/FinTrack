@@ -17,23 +17,34 @@
         android:textSize="24sp"
         android:textStyle="bold" />
 
-    <EditText
-        android:id="@+id/edt_expense"
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/tie_expense"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:hint="Ex: Market shopping"
-        android:textColor="@color/text_hint"
-        tools:text="Ex: Market shopping" />
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:hint="Ex.: Market purchases"
+        android:inputType="textCapSentences"
+        android:orientation="horizontal"
+        android:textColor="@color/white"
+        android:textColorHighlight="@color/white"
+        android:textColorHint="@color/text_hint" />
 
-    <EditText
+
+    <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/edt_value_expense"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
         android:hint="Ex: 200.00"
-        android:textColor="@color/text_hint"
-        tools:text="Ex: 200.00" />
+        android:inputType="textCapSentences"
+        android:orientation="horizontal"
+        android:textColor="@color/white"
+        android:textColorHighlight="@color/white"
+        android:textColorHint="@color/text_hint" />
 
     <TextView
         android:id="@+id/tv_categories_expenses_label"

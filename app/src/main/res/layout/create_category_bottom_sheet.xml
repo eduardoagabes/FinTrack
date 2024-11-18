@@ -7,7 +7,6 @@
     android:background="@color/background_color"
     android:orientation="vertical">
 
-
     <TextView
         android:id="@+id/tv_title"
         android:layout_width="match_parent"
@@ -66,6 +65,5 @@
         android:backgroundTint="@color/green"
         android:text="Create"
         android:textColor="@color/white" />
-
 
 </LinearLayout>

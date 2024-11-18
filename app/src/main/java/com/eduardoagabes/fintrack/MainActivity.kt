@@ -1,6 +1,9 @@
 package com.eduardoagabes.fintrack
 
+import CreateExpenseBottomSheet
 import android.os.Bundle
+import android.view.View
+import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -20,7 +23,6 @@ class MainActivity : AppCompatActivity() {
 
     private val categoryAdapter = CategoryListAdapter()
 
-
     private val db by lazy {
         Room.databaseBuilder(
             applicationContext,
@@ -28,18 +30,14 @@ class MainActivity : AppCompatActivity() {
         ).build()
     }
 
-    private val categoryDao: CategoryDao by lazy {
-        db.getCategoryDao()
-    }
-
-    private val expensesDao: ExpensesDao by lazy {
-        db.getExpensesDao()
-    }
+    private val categoryDao: CategoryDao by lazy { db.getCategoryDao() }
+    private val expensesDao: ExpensesDao by lazy { db.getExpensesDao() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -53,9 +51,11 @@ class MainActivity : AppCompatActivity() {
 
         rvListCategories.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-
         rvListExpenses.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+
+        rvListCategories.adapter = categoryAdapter
+        rvListExpenses.adapter = expensesAdapter
 
         categoryAdapter.setOnClickListener { selected ->
             if (selected.category == R.drawable.ic_add) {
@@ -68,7 +68,6 @@ class MainActivity : AppCompatActivity() {
                     insertCategory(categoryEntity)
                 }
                 createCategoryBottomSheet.show(supportFragmentManager, "createCategoryBottomSheet")
-
             } else {
                 val categoryTemp = categories.map { item ->
                     when {
@@ -95,40 +94,37 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        rvListCategories.adapter = categoryAdapter
-        GlobalScope.launch(Dispatchers.IO) {
-            getCategoriesFromDataBase()
-        }
-
-        rvListExpenses.adapter = expensesAdapter
+        getCategoriesFromDataBase()
         getExpensesFromDataBase(expensesAdapter)
+
     }
 
     private fun getCategoriesFromDataBase() {
-        val categoriesFromDb: List<CategoryEntity> = categoryDao.getAll()
-        val categoriesUiData = categoriesFromDb.map {
-            CategoryUiData(
-                id = it.id,
-                category = it.category,
-                isSelected = it.isSelected,
-                color = it.color
-            )
-        }.toMutableList()
+        GlobalScope.launch(Dispatchers.IO) {
+            val categoriesFromDb: List<CategoryEntity> = categoryDao.getAll()
+            val categoriesUiData = categoriesFromDb.map {
+                CategoryUiData(
+                    id = it.id,
+                    category = it.category,
+                    isSelected = it.isSelected,
+                    color = it.color
+                )
+            }.toMutableList()
 
-        categoriesUiData.add(
-            CategoryUiData(
-                id = 0,
-                category = R.drawable.ic_add,
-                isSelected = false,
-                color = R.color.white
+            categoriesUiData.add(
+                CategoryUiData(
+                    id = 0,
+                    category = R.drawable.ic_add,
+                    isSelected = false,
+                    color = R.color.white
+                )
             )
-        )
 
-        GlobalScope.launch(Dispatchers.Main) {
-            categories = categoriesUiData
-            categoryAdapter.submitList(categoriesUiData)
+            GlobalScope.launch(Dispatchers.Main) {
+                categories = categoriesUiData
+                categoryAdapter.submitList(categoriesUiData)
+            }
         }
-
     }
 
     private fun getExpensesFromDataBase(adapter: ExpensesListAdapter) {

@@ -38,6 +38,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.recyclerview)
     val room_version = "2.6.1"
 
     implementation(libs.androidx.core.ktx.v1120)
