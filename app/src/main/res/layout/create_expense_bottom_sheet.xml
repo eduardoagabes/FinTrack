@@ -33,7 +33,7 @@
 
 
     <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/edt_value_expense"
+        android:id="@+id/tie_value_expense"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="18dp"

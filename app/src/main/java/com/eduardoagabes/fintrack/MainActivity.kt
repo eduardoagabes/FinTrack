@@ -2,7 +2,7 @@ package com.eduardoagabes.fintrack
 
 import CreateExpenseBottomSheet
 import android.os.Bundle
-import android.view.View
+import android.util.Log
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         val rvListCategories = findViewById<RecyclerView>(R.id.rv_category)
         val rvListExpenses = findViewById<RecyclerView>(R.id.rv_expense)
+        val btnAddExpense = findViewById<Button>(R.id.btn_add_expenses)
 
         val expensesAdapter = ExpensesListAdapter()
 
@@ -56,6 +57,24 @@ class MainActivity : AppCompatActivity() {
 
         rvListCategories.adapter = categoryAdapter
         rvListExpenses.adapter = expensesAdapter
+
+        btnAddExpense.setOnClickListener {
+            val createExpenseBottomSheet =
+                CreateExpenseBottomSheet(categories) { selectedCategory, value, expense ->
+                    val expenseEntity = ExpensesEntity(
+                        name = expense,
+                        value = String.format("%.2f", value),
+                        category = selectedCategory.category,
+                        color = selectedCategory.color
+                    )
+                    insertExpense(expenseEntity)
+                }
+
+            createExpenseBottomSheet.show(
+                supportFragmentManager,
+                "createExpenseBottomSheet"
+            )
+        }
 
         categoryAdapter.setOnClickListener { selected ->
             if (selected.category == R.drawable.ic_add) {
@@ -83,20 +102,20 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
-                val expenseTemp =
-                    if (selected.category != R.drawable.ic_all) {
-                        expenses.filter { it.category == selected.category }
-                    } else {
-                        expenses
-                    }
-                expensesAdapter.submitList(expenseTemp)
                 categoryAdapter.submitList(categoryTemp)
+                val expenseTemp = if (selected.category != R.drawable.ic_all) {
+                    expenses.filter { it.category == selected.category }
+                } else {
+                    expenses
+                }
+
+                expensesAdapter.submitList(expenseTemp)
+
             }
         }
 
         getCategoriesFromDataBase()
         getExpensesFromDataBase(expensesAdapter)
-
     }
 
     private fun getCategoriesFromDataBase() {
@@ -153,4 +172,13 @@ class MainActivity : AppCompatActivity() {
             getCategoriesFromDataBase()
         }
     }
+
+    private fun insertExpense(expenseEntity: ExpensesEntity) {
+        GlobalScope.launch(Dispatchers.IO) {
+            expensesDao.insert(expenseEntity)
+            getExpensesFromDataBase(ExpensesListAdapter())
+        }
+    }
+
+
 }

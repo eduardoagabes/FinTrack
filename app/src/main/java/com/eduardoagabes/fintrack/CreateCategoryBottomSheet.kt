@@ -15,6 +15,7 @@ class CreateCategoryBottomSheet(
     private val onCreateClicked: (Int, Int) -> Unit
 ) : BottomSheetDialogFragment() {
 
+    private lateinit var listCategories: MutableList<CategoryUiData>
     private var selectedCategory: CategoryUiData? = null
     private var selectedColor: Int = R.color.white
 
@@ -29,11 +30,12 @@ class CreateCategoryBottomSheet(
         val btnCreate = view.findViewById<Button>(R.id.btn_category_create)
         val rvColors = view.findViewById<RecyclerView>(R.id.rv_set_color)
 
-        // poner snackbar
+        listCategories = mutableListOf()
+        getCategory(listCategories)
+
         btnCreate.setOnClickListener {
             val category = selectedCategory?.category ?: R.drawable.ic_home
-            val color = selectedColor
-            onCreateClicked.invoke(category, color)
+            onCreateClicked.invoke(category, selectedColor)
             dismiss()
         }
 
@@ -56,14 +58,11 @@ class CreateCategoryBottomSheet(
             this.selectedColor = selectedColor
         }
 
-        rvCreateCategory.layoutManager =
-            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-
         rvColors.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
-        val listCategories = mutableListOf<CategoryUiData>()
-        getCategory(listCategories)
+        rvCreateCategory.layoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
         val categoriesAdapter = CategoryListAdapter()
         categoriesAdapter.setOnClickListener { category ->
@@ -96,3 +95,4 @@ class CreateCategoryBottomSheet(
         }
     }
 }
+
