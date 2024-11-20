@@ -1,9 +1,9 @@
 package com.eduardoagabes.fintrack
 
-import CreateExpenseBottomSheet
+import CreateOrUpdateExpenseBottomSheet
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
+import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -22,6 +22,9 @@ class MainActivity : AppCompatActivity() {
     private var expenses = listOf<ExpensesUiData>()
 
     private val categoryAdapter = CategoryListAdapter()
+    private val expensesAdapter by lazy {
+        ExpensesListAdapter()
+    }
 
     private val db by lazy {
         Room.databaseBuilder(
@@ -48,32 +51,19 @@ class MainActivity : AppCompatActivity() {
         val rvListExpenses = findViewById<RecyclerView>(R.id.rv_expense)
         val btnAddExpense = findViewById<Button>(R.id.btn_add_expenses)
 
-        val expensesAdapter = ExpensesListAdapter()
 
         rvListCategories.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         rvListExpenses.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
-        rvListCategories.adapter = categoryAdapter
-        rvListExpenses.adapter = expensesAdapter
 
         btnAddExpense.setOnClickListener {
-            val createExpenseBottomSheet =
-                CreateExpenseBottomSheet(categories) { selectedCategory, value, expense ->
-                    val expenseEntity = ExpensesEntity(
-                        name = expense,
-                        value = String.format("%.2f", value),
-                        category = selectedCategory.category,
-                        color = selectedCategory.color
-                    )
-                    insertExpense(expenseEntity)
-                }
+            showCreateUpdateExpenseBottomSheet()
+        }
 
-            createExpenseBottomSheet.show(
-                supportFragmentManager,
-                "createExpenseBottomSheet"
-            )
+        expensesAdapter.setOnClickListener { expense ->
+            showCreateUpdateExpenseBottomSheet(expense)
         }
 
         categoryAdapter.setOnClickListener { selected ->
@@ -102,20 +92,29 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
-                categoryAdapter.submitList(categoryTemp)
                 val expenseTemp = if (selected.category != R.drawable.ic_all) {
                     expenses.filter { it.category == selected.category }
                 } else {
                     expenses
                 }
 
+                categoryAdapter.submitList(categoryTemp)
                 expensesAdapter.submitList(expenseTemp)
-
             }
         }
 
-        getCategoriesFromDataBase()
-        getExpensesFromDataBase(expensesAdapter)
+        rvListCategories.adapter = categoryAdapter
+
+        GlobalScope.launch(Dispatchers.IO) {
+            getCategoriesFromDataBase()
+        }
+
+        rvListExpenses.adapter = expensesAdapter
+
+        GlobalScope.launch(Dispatchers.IO) {
+            getExpensesFromDataBase()
+        }
+
     }
 
     private fun getCategoriesFromDataBase() {
@@ -146,23 +145,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getExpensesFromDataBase(adapter: ExpensesListAdapter) {
-        GlobalScope.launch(Dispatchers.IO) {
-            val expensesFromDb: List<ExpensesEntity> = expensesDao.getAll()
-            val expensesUiData = expensesFromDb.map {
-                ExpensesUiData(
-                    id = it.id,
-                    name = it.name,
-                    value = it.value,
-                    category = it.category,
-                    color = it.color
-                )
-            }
+    private fun getExpensesFromDataBase() {
+        val expensesFromDb: List<ExpensesEntity> = expensesDao.getAll()
+        val expensesUiData = expensesFromDb.map {
+            ExpensesUiData(
+                id = it.id,
+                name = it.name,
+                value = it.value,
+                category = it.category,
+                color = it.color
+            )
+        }
 
-            GlobalScope.launch(Dispatchers.Main) {
-                expenses = expensesUiData
-                adapter.submitList(expensesUiData)
-            }
+        GlobalScope.launch(Dispatchers.Main) {
+            expenses = expensesUiData
+            expensesAdapter.submitList(expensesUiData)
+            updateTotalValue()
         }
     }
 
@@ -176,9 +174,34 @@ class MainActivity : AppCompatActivity() {
     private fun insertExpense(expenseEntity: ExpensesEntity) {
         GlobalScope.launch(Dispatchers.IO) {
             expensesDao.insert(expenseEntity)
-            getExpensesFromDataBase(ExpensesListAdapter())
+            getExpensesFromDataBase()
         }
     }
 
+    private fun showCreateUpdateExpenseBottomSheet(expensesUiData: ExpensesUiData? = null) {
+        val createExpenseBottomSheet =
+            CreateOrUpdateExpenseBottomSheet(
+                expense = expensesUiData,
+                userCategories = categories
+            ) { selectedCategory, value, expense ->
+                val expenseEntity = ExpensesEntity(
+                    name = expense,
+                    value = String.format("%.2f", value),
+                    category = selectedCategory.category,
+                    color = selectedCategory.color
+                )
+                insertExpense(expenseEntity)
+            }
 
+        createExpenseBottomSheet.show(
+            supportFragmentManager,
+            "createExpenseBottomSheet"
+        )
+    }
+
+    private fun updateTotalValue() {
+        val total = expenses.sumOf { it.value.toDouble() }
+        val totalValue = findViewById<TextView>(R.id.tv_total_result)
+        totalValue.text = "$ ${String.format("%.2f", total)}"
+    }
 }

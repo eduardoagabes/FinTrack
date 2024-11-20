@@ -13,6 +13,12 @@ import androidx.recyclerview.widget.RecyclerView
 class ExpensesListAdapter :
     ListAdapter<ExpensesUiData, ExpensesListAdapter.ExpensesViewHolder>(ExpensesDiffUtils()) {
 
+    private lateinit var callback: (ExpensesUiData) -> Unit
+
+    fun setOnClickListener(onClick: (ExpensesUiData) -> Unit) {
+        callback = onClick
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExpensesViewHolder {
         val view =
             LayoutInflater.from(parent.context).inflate(R.layout.item_list_expenses, parent, false)
@@ -21,20 +27,23 @@ class ExpensesListAdapter :
 
     override fun onBindViewHolder(holder: ExpensesViewHolder, position: Int) {
         val expenses = getItem(position)
-        holder.bind(expenses)
+        holder.bind(expenses, callback)
     }
 
-    class ExpensesViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class ExpensesViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         private val ivExpenses = view.findViewById<ImageView>(R.id.iv_expenses)
         private val tvName = view.findViewById<TextView>(R.id.tv_name_expense)
         private val tvValue = view.findViewById<TextView>(R.id.tv_value)
         private val setColor = view.findViewById<View>(R.id.set_color_expense)
 
-        fun bind(expensesUiData: ExpensesUiData) {
+        fun bind(expensesUiData: ExpensesUiData, callback: (ExpensesUiData) -> Unit) {
             ivExpenses.setImageResource(expensesUiData.category)
             tvName.text = expensesUiData.name
             tvValue.text = "- $ ${expensesUiData.value}"
 
+            view.setOnClickListener {
+                callback.invoke(expensesUiData)
+            }
 
             val background = setColor.background as GradientDrawable
             background.setColor(expensesUiData.color)
