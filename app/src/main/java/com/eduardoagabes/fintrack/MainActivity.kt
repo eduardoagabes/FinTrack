@@ -178,20 +178,38 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateExpense(expenseEntity: ExpensesEntity) {
+        GlobalScope.launch(Dispatchers.IO) {
+            expensesDao.update(expenseEntity)
+            getExpensesFromDataBase()
+        }
+    }
+
     private fun showCreateUpdateExpenseBottomSheet(expensesUiData: ExpensesUiData? = null) {
         val createExpenseBottomSheet =
             CreateOrUpdateExpenseBottomSheet(
                 expense = expensesUiData,
-                userCategories = categories
-            ) { selectedCategory, value, expense ->
-                val expenseEntity = ExpensesEntity(
-                    name = expense,
-                    value = String.format("%.2f", value),
-                    category = selectedCategory.category,
-                    color = selectedCategory.color
-                )
-                insertExpense(expenseEntity)
-            }
+                userCategories = categories,
+                onCreateClicked = { selectedCategory, value, expense ->
+                    val expenseEntity = ExpensesEntity(
+                        name = expense,
+                        value = String.format("%.2f", value),
+                        category = selectedCategory.category,
+                        color = selectedCategory.color
+                    )
+                    insertExpense(expenseEntity)
+                },
+                onUpdateClicked = { selectedCategory, value, expenseName, expense ->
+                    val expenseEntityUpdate = ExpensesEntity(
+                        id = expense.id,
+                        name = expenseName,
+                        value = String.format("%.2f", value),
+                        category = selectedCategory.category,
+                        color = selectedCategory.color
+                    )
+                    updateExpense(expenseEntityUpdate)
+                }
+            )
 
         createExpenseBottomSheet.show(
             supportFragmentManager,

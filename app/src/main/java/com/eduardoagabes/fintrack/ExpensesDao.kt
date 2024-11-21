@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface ExpensesDao {
@@ -16,4 +17,7 @@ interface ExpensesDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(expenseEntity: ExpensesEntity)
+
+    @Update
+    fun update(expenseEntity: ExpensesEntity)
 }

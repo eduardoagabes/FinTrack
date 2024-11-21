@@ -17,7 +17,8 @@ import com.google.android.material.textfield.TextInputEditText
 class CreateOrUpdateExpenseBottomSheet(
     private val userCategories: List<CategoryUiData>,
     private val expense: ExpensesUiData? = null,
-    private val onCategorySelected: (CategoryUiData, Double, String) -> Unit
+    private val onCreateClicked: (CategoryUiData, Double, String) -> Unit,
+    private val onUpdateClicked: (CategoryUiData, Double, String, ExpensesUiData) -> Unit
 ) : BottomSheetDialogFragment() {
 
     private lateinit var categoriesAdapter: CategoryListAdapter
@@ -64,12 +65,25 @@ class CreateOrUpdateExpenseBottomSheet(
 
         btnCreate.setOnClickListener {
             val value = edtValue.text.toString().toDoubleOrNull()
-            val expense = edtExpense.text.toString()
+            val expenseName = edtExpense.text.toString()
 
-            if (selectedCategory == null || value == null || expense.isEmpty()) {
+            if (selectedCategory == null || value == null || expenseName.isEmpty()) {
                 Snackbar.make(view, "Please fill all fields.", Snackbar.LENGTH_SHORT).show()
             } else {
-                onCategorySelected.invoke(selectedCategory!!, value ?: 0.0, expense)
+                if (expense == null) {
+                    onCreateClicked.invoke(
+                        selectedCategory!!,
+                        value ?: 0.0,
+                        expenseName
+                    )
+                } else {
+                    onUpdateClicked.invoke(
+                        selectedCategory!!,
+                        value ?: 0.0,
+                        expenseName,
+                        expense
+                    )
+                }
                 dismiss()
             }
         }
