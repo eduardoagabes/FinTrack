@@ -1,9 +1,11 @@
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.eduardoagabes.fintrack.CategoryListAdapter
@@ -13,17 +15,18 @@ import com.eduardoagabes.fintrack.R
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
+import kotlin.math.exp
 
 class CreateOrUpdateExpenseBottomSheet(
     private val userCategories: List<CategoryUiData>,
     private val expense: ExpensesUiData? = null,
     private val onCreateClicked: (CategoryUiData, Double, String) -> Unit,
-    private val onUpdateClicked: (CategoryUiData, Double, String, ExpensesUiData) -> Unit
+    private val onUpdateClicked: (CategoryUiData, Double, String, ExpensesUiData) -> Unit,
+    private val onDeleteClicked: (ExpensesUiData) -> Unit
 ) : BottomSheetDialogFragment() {
 
     private lateinit var categoriesAdapter: CategoryListAdapter
     private var selectedCategory: CategoryUiData? = null
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,7 +38,8 @@ class CreateOrUpdateExpenseBottomSheet(
 
         val tvTitle = view.findViewById<TextView>(R.id.tv_title)
         val rvCategories = view.findViewById<RecyclerView>(R.id.rv_selecet_category)
-        val btnCreate = view.findViewById<Button>(R.id.btn_create_expense)
+        val btnCreateOrUpdate = view.findViewById<Button>(R.id.btn_expense_create_or_update)
+        val btnDelete = view.findViewById<Button>(R.id.btn_expense_delete)
         val edtValue = view.findViewById<TextInputEditText>(R.id.tie_value_expense)
         val edtExpense = view.findViewById<TextInputEditText>(R.id.tie_expense)
 
@@ -48,13 +52,15 @@ class CreateOrUpdateExpenseBottomSheet(
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
         if (expense == null) {
+            btnDelete.isVisible = false
             tvTitle.setText(R.string.create_expense_title)
-            btnCreate.setText(R.string.create)
+            btnCreateOrUpdate.setText(R.string.create)
         } else {
             tvTitle.setText(R.string.update_expense_title)
-            btnCreate.setText(R.string.update)
+            btnCreateOrUpdate.setText(R.string.update)
             edtExpense.setText(expense.name)
             edtValue.setText(expense.value)
+            btnDelete.isVisible = true
 
             selectedCategory = userCategories.find { it.category == expense.category }
             userCategories.forEach {
@@ -63,7 +69,16 @@ class CreateOrUpdateExpenseBottomSheet(
             categoriesAdapter.notifyDataSetChanged()
         }
 
-        btnCreate.setOnClickListener {
+        btnDelete.setOnClickListener {
+            if(expense != null) {
+                onDeleteClicked.invoke(expense)
+                dismiss()
+            } else {
+                Log.d("CreateOrUpdateExpenseBottomSheet", "Expense not found")
+            }
+        }
+
+        btnCreateOrUpdate.setOnClickListener {
             val value = edtValue.text.toString().toDoubleOrNull()
             val expenseName = edtExpense.text.toString()
 

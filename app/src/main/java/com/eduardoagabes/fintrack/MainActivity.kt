@@ -185,6 +185,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun deleteExpense(expenseEntity: ExpensesEntity) {
+        GlobalScope.launch(Dispatchers.IO) {
+            expensesDao.delete(expenseEntity)
+            getExpensesFromDataBase()
+        }
+    }
+
     private fun showCreateUpdateExpenseBottomSheet(expensesUiData: ExpensesUiData? = null) {
         val createExpenseBottomSheet =
             CreateOrUpdateExpenseBottomSheet(
@@ -208,6 +215,16 @@ class MainActivity : AppCompatActivity() {
                         color = selectedCategory.color
                     )
                     updateExpense(expenseEntityUpdate)
+                },
+                onDeleteClicked = { expense ->
+                    val expenseEntityDeleted = ExpensesEntity(
+                        id = expense.id,
+                        name = expense.name,
+                        value = expense.value,
+                        category = expense.category,
+                        color = expense.color
+                    )
+                    deleteExpense(expenseEntityDeleted)
                 }
             )
 

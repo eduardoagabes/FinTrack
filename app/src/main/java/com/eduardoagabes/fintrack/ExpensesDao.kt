@@ -1,6 +1,7 @@
 package com.eduardoagabes.fintrack
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -20,4 +21,7 @@ interface ExpensesDao {
 
     @Update
     fun update(expenseEntity: ExpensesEntity)
+
+    @Delete
+    fun delete(expenseEntity: ExpensesEntity)
 }
