@@ -12,7 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class CreateCategoryBottomSheet(
-    private val onCreateClicked: (Int, Int) -> Unit
+    private val onCreateClicked: (Int, Int) -> Unit,
+
 ) : BottomSheetDialogFragment() {
 
     private lateinit var listCategories: MutableList<CategoryUiData>

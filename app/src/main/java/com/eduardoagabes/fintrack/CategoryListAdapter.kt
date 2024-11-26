@@ -12,9 +12,14 @@ class CategoryListAdapter :
     ListAdapter<CategoryUiData, CategoryListAdapter.CategoryViewHolder>(CategoryDiffUtils) {
 
     private lateinit var onClick: (CategoryUiData) -> Unit
+    private var onLongClick: (CategoryUiData) -> Unit = {}
 
     fun setOnClickListener(onClick: (CategoryUiData) -> Unit) {
         this.onClick = onClick
+    }
+
+    fun setOnLongClickListener(onLongClick: (CategoryUiData) -> Unit) {
+        this.onLongClick = onLongClick
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
@@ -25,17 +30,19 @@ class CategoryListAdapter :
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         val categories = getItem(position)
-        holder.bind(categories, onClick)
+        holder.bind(categories, onClick, onLongClick)
     }
 
     class CategoryViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
         private val ivCategory = view.findViewById<ImageView>(R.id.icon_category)
 
-        fun bind(categoryUiData: CategoryUiData, onClick: (CategoryUiData) -> Unit) {
+        fun bind(
+            categoryUiData: CategoryUiData,
+            onClick: (CategoryUiData) -> Unit,
+            onLongClickListener: (CategoryUiData) -> Unit,
+        ) {
             ivCategory.setImageResource(categoryUiData.category)
-
             ivCategory.isSelected = categoryUiData.isSelected
-
             if (categoryUiData.isSelected) {
                 ivCategory.setBackgroundResource(R.drawable.selected_button_bg)
             } else {
@@ -44,6 +51,11 @@ class CategoryListAdapter :
 
             view.setOnClickListener {
                 onClick.invoke(categoryUiData)
+            }
+
+            view.setOnLongClickListener {
+                onLongClickListener.invoke(categoryUiData)
+                true
             }
         }
     }

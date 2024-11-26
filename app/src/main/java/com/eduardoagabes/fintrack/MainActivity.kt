@@ -66,6 +66,17 @@ class MainActivity : AppCompatActivity() {
             showCreateUpdateExpenseBottomSheet(expense)
         }
 
+        categoryAdapter.setOnLongClickListener { categoryToBeDeleted ->
+                val categoryEntityToBeDeleted = CategoryEntity(
+                id = categoryToBeDeleted.id,
+                category = categoryToBeDeleted.category,
+                isSelected = categoryToBeDeleted.isSelected,
+                color = categoryToBeDeleted.color
+            )
+
+            deleteCategory(categoryEntityToBeDeleted)
+        }
+
         categoryAdapter.setOnClickListener { selected ->
             if (selected.category == R.drawable.ic_add) {
                 val createCategoryBottomSheet = CreateCategoryBottomSheet { category, color ->
@@ -189,6 +200,13 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.IO) {
             expensesDao.delete(expenseEntity)
             getExpensesFromDataBase()
+        }
+    }
+
+    private fun deleteCategory(categoryEntity: CategoryEntity) {
+        GlobalScope.launch(Dispatchers.IO) {
+            categoryDao.delete(categoryEntity)
+            getCategoriesFromDataBase()
         }
     }
 
