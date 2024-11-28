@@ -67,14 +67,25 @@ class MainActivity : AppCompatActivity() {
         }
 
         categoryAdapter.setOnLongClickListener { categoryToBeDeleted ->
-                val categoryEntityToBeDeleted = CategoryEntity(
-                id = categoryToBeDeleted.id,
-                category = categoryToBeDeleted.category,
-                isSelected = categoryToBeDeleted.isSelected,
-                color = categoryToBeDeleted.color
-            )
+            if (categoryToBeDeleted.category != R.drawable.ic_add) {
+                val title = this.getString(R.string.category_delete_title)
+                val description = this.getString(R.string.category_delete_description)
+                val btnText = this.getString(R.string.delete)
 
-            deleteCategory(categoryEntityToBeDeleted)
+                showInfoDialog(
+                    title,
+                    description,
+                    btnText
+                ) {
+                    val categoryEntityToBeDeleted = CategoryEntity(
+                        id = categoryToBeDeleted.id,
+                        category = categoryToBeDeleted.category,
+                        isSelected = categoryToBeDeleted.isSelected,
+                        color = categoryToBeDeleted.color
+                    )
+                    deleteCategory(categoryEntityToBeDeleted)
+                }
+            }
         }
 
         categoryAdapter.setOnClickListener { selected ->
@@ -128,6 +139,25 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun showInfoDialog(
+        title: String,
+        description: String,
+        btnText: String,
+        onClick: () -> Unit
+    ) {
+        val infoBottomSheet = InfoBottomSheet(
+            title = title,
+            description = description,
+            btnText = btnText,
+            onClick
+        )
+
+        infoBottomSheet.show(
+            supportFragmentManager,
+            "infoBottomSheet"
+        )
+    }
+
     private fun getCategoriesFromDataBase() {
         GlobalScope.launch(Dispatchers.IO) {
             val categoriesFromDb: List<CategoryEntity> = categoryDao.getAll()
@@ -170,8 +200,8 @@ class MainActivity : AppCompatActivity() {
 
         GlobalScope.launch(Dispatchers.Main) {
             expenses = expensesUiData
-            expensesAdapter.submitList(expensesUiData)
             updateTotalValue()
+            expensesAdapter.submitList(expensesUiData)
         }
     }
 
@@ -205,8 +235,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun deleteCategory(categoryEntity: CategoryEntity) {
         GlobalScope.launch(Dispatchers.IO) {
+            val expensesToBeDeleted = expensesDao.getAllByCategoryName(categoryEntity.category)
+            expensesDao.deleteAll(expensesToBeDeleted)
             categoryDao.delete(categoryEntity)
             getCategoriesFromDataBase()
+            getExpensesFromDataBase()
         }
     }
 

@@ -24,4 +24,10 @@ interface ExpensesDao {
 
     @Delete
     fun delete(expenseEntity: ExpensesEntity)
+
+    @Query("Select * From expensesentity where category is :categoryName")
+    fun getAllByCategoryName(categoryName: Int): List<ExpensesEntity>
+
+    @Delete
+    fun deleteAll(expenseEntity: List<ExpensesEntity>)
 }

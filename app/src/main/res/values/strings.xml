@@ -5,4 +5,7 @@
     <string name="create">Create</string>
     <string name="update_expense_title">Update expense</string>
     <string name="update">Update</string>
+    <string name="category_delete_title">Important</string>
+    <string name="category_delete_description">By deleting a category you will delete all tasks with this category, are you sare? </string>
+    <string name="delete">Delete</string>
 </resources>
