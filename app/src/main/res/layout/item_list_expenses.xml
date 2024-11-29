@@ -40,7 +40,7 @@
         app:layout_constraintEnd_toStartOf="@+id/set_color_expense"
         app:layout_constraintStart_toEndOf="@id/iv_expenses"
         app:layout_constraintTop_toTopOf="@id/iv_expenses"
-        tools:text="Spotify" />
+        tools:text="Expense" />
 
     <TextView
         android:id="@+id/tv_value"

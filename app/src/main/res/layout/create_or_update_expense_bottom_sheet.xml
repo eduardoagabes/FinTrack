@@ -26,9 +26,8 @@
         android:layout_marginEnd="24dp"
         android:hint="Ex.: Market purchases"
         android:inputType="textCapSentences"
-        android:orientation="horizontal"
         android:textColor="@color/white"
-        android:textColorHighlight="@color/white"
+        android:textColorHighlight="@color/text_hint"
         android:textColorHint="@color/text_hint" />
 
 
@@ -39,7 +38,7 @@
         android:layout_marginStart="18dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="24dp"
-        android:hint="Ex: 200.00"
+        android:hint="Ex.: 200.00"
         android:inputType="textCapSentences"
         android:orientation="horizontal"
         android:textColor="@color/white"

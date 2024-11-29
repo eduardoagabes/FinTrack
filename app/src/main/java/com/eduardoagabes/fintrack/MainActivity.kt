@@ -3,11 +3,13 @@ package com.eduardoagabes.fintrack
 import CreateOrUpdateExpenseBottomSheet
 import android.os.Bundle
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
@@ -19,7 +21,16 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
 
     private var categories = listOf<CategoryUiData>()
+    private var categoriesEntity = listOf<CategoryEntity>()
     private var expenses = listOf<ExpensesUiData>()
+
+    private lateinit var rvListCategories: RecyclerView
+    private lateinit var rvListExpenses: RecyclerView
+    private lateinit var ctnEmptyView: LinearLayout
+    private lateinit var ctnTotalExpenses: LinearLayout
+    private lateinit var btnAddExpense: Button
+    private lateinit var tvCategoriesLabel: TextView
+    private lateinit var tvExpensesLabel: TextView
 
     private val categoryAdapter = CategoryListAdapter()
     private val expensesAdapter by lazy {
@@ -47,10 +58,18 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val rvListCategories = findViewById<RecyclerView>(R.id.rv_category)
-        val rvListExpenses = findViewById<RecyclerView>(R.id.rv_expense)
-        val btnAddExpense = findViewById<Button>(R.id.btn_add_expenses)
+        rvListCategories = findViewById(R.id.rv_category)
+        ctnEmptyView = findViewById(R.id.ll_empty_view)
+        ctnTotalExpenses = findViewById(R.id.ll_total)
+        rvListExpenses = findViewById(R.id.rv_expense)
+        btnAddExpense = findViewById(R.id.btn_add_expenses)
+        tvCategoriesLabel = findViewById(R.id.tv_categories_label)
+        tvExpensesLabel = findViewById(R.id.tv_expenses_label)
+        val btnCreateEmpty = findViewById<Button>(R.id.btn_create_empty)
 
+        btnCreateEmpty.setOnClickListener {
+            showCreateCategoryBottomSheet()
+        }
 
         rvListCategories.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -67,7 +86,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         categoryAdapter.setOnLongClickListener { categoryToBeDeleted ->
-            if (categoryToBeDeleted.category != R.drawable.ic_add) {
+            if (categoryToBeDeleted.category != R.drawable.ic_add &&
+                categoryToBeDeleted.category != R.drawable.ic_all) {
+
                 val title = this.getString(R.string.category_delete_title)
                 val description = this.getString(R.string.category_delete_description)
                 val btnText = this.getString(R.string.delete)
@@ -90,23 +111,20 @@ class MainActivity : AppCompatActivity() {
 
         categoryAdapter.setOnClickListener { selected ->
             if (selected.category == R.drawable.ic_add) {
-                val createCategoryBottomSheet = CreateCategoryBottomSheet { category, color ->
-                    val categoryEntity = CategoryEntity(
-                        category = category,
-                        color = color,
-                        isSelected = false
-                    )
-                    insertCategory(categoryEntity)
-                }
-                createCategoryBottomSheet.show(supportFragmentManager, "createCategoryBottomSheet")
+                showCreateCategoryBottomSheet()
+
             } else {
                 val categoryTemp = categories.map { item ->
                     when {
+                        item.category == selected.category && item.isSelected -> item.copy(
+                            isSelected = true
+                        )
+
                         item.category == selected.category && !item.isSelected -> item.copy(
                             isSelected = true
                         )
 
-                        item.category == selected.category && item.isSelected -> item.copy(
+                        item.category != selected.category && item.isSelected -> item.copy(
                             isSelected = false
                         )
 
@@ -114,14 +132,15 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
-                val expenseTemp = if (selected.category != R.drawable.ic_all) {
-                    expenses.filter { it.category == selected.category }
+                if (selected.category != R.drawable.ic_all) {
+                    filterExpenseByCategoryName(selected.category)
                 } else {
-                    expenses
+                    GlobalScope.launch(Dispatchers.IO) {
+                        getExpensesFromDataBase()
+                    }
                 }
 
                 categoryAdapter.submitList(categoryTemp)
-                expensesAdapter.submitList(expenseTemp)
             }
         }
 
@@ -136,7 +155,6 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch(Dispatchers.IO) {
             getExpensesFromDataBase()
         }
-
     }
 
     private fun showInfoDialog(
@@ -161,6 +179,27 @@ class MainActivity : AppCompatActivity() {
     private fun getCategoriesFromDataBase() {
         GlobalScope.launch(Dispatchers.IO) {
             val categoriesFromDb: List<CategoryEntity> = categoryDao.getAll()
+            categoriesEntity = categoriesFromDb
+
+            GlobalScope.launch(Dispatchers.Main) {
+                if(categoriesEntity.isEmpty()) {
+                    rvListCategories.isVisible = false
+                    rvListExpenses.isVisible = false
+                    btnAddExpense.isVisible = false
+                    ctnTotalExpenses.isVisible = false
+                    tvCategoriesLabel.isVisible = false
+                    tvExpensesLabel.isVisible = false
+                    ctnEmptyView.isVisible = true
+                } else {
+                    rvListCategories.isVisible = true
+                    rvListExpenses.isVisible = true
+                    btnAddExpense.isVisible = true
+                    ctnTotalExpenses.isVisible = true
+                    tvCategoriesLabel.isVisible = true
+                    tvExpensesLabel.isVisible = true
+                    ctnEmptyView.isVisible = false
+                }
+            }
             val categoriesUiData = categoriesFromDb.map {
                 CategoryUiData(
                     id = it.id,
@@ -179,9 +218,19 @@ class MainActivity : AppCompatActivity() {
                 )
             )
 
+            val categoryListTemp = mutableListOf(
+                CategoryUiData(
+                    id = 0,
+                    category = R.drawable.ic_all,
+                    isSelected = true,
+                    color = R.color.white
+                )
+            )
+
+            categoryListTemp.addAll(categoriesUiData)
             GlobalScope.launch(Dispatchers.Main) {
-                categories = categoriesUiData
-                categoryAdapter.submitList(categoriesUiData)
+                categories = categoryListTemp
+                categoryAdapter.submitList(categories)
             }
         }
     }
@@ -243,11 +292,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun filterExpenseByCategoryName(category: Int) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val expensesFromDb: List<ExpensesEntity> = expensesDao.getAllByCategoryName(category)
+            val expensesUiData = expensesFromDb.map {
+                ExpensesUiData(
+                    id = it.id,
+                    name = it.name,
+                    value = it.value,
+                    category = it.category,
+                    color = it.color
+                )
+            }
+
+            GlobalScope.launch(Dispatchers.Main) {
+                updateTotalValue()
+                expensesAdapter.submitList(expensesUiData)
+            }
+        }
+    }
+
     private fun showCreateUpdateExpenseBottomSheet(expensesUiData: ExpensesUiData? = null) {
         val createExpenseBottomSheet =
             CreateOrUpdateExpenseBottomSheet(
                 expense = expensesUiData,
-                userCategories = categories,
+                userCategories = categoriesEntity,
                 onCreateClicked = { selectedCategory, value, expense ->
                     val expenseEntity = ExpensesEntity(
                         name = expense,
@@ -289,5 +358,17 @@ class MainActivity : AppCompatActivity() {
         val total = expenses.sumOf { it.value.toDouble() }
         val totalValue = findViewById<TextView>(R.id.tv_total_result)
         totalValue.text = "$ ${String.format("%.2f", total)}"
+    }
+
+    private fun showCreateCategoryBottomSheet() {
+        val createCategoryBottomSheet = CreateCategoryBottomSheet { category, color ->
+            val categoryEntity = CategoryEntity(
+                category = category,
+                color = color,
+                isSelected = false
+            )
+            insertCategory(categoryEntity)
+        }
+        createCategoryBottomSheet.show(supportFragmentManager, "createCategoryBottomSheet")
     }
 }

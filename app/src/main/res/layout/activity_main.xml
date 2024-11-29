@@ -37,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:text="Total expenditure"
+            android:text="Total expenses"
             android:textColor="@color/white"
             android:textSize="16sp" />
 
@@ -47,8 +47,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:textColor="@color/white"
-            android:textSize="40sp"
-            tools:text="$ 0,00" />
+            android:textSize="38sp"
+            tools:text="$ 0.00" />
 
     </LinearLayout>
 
@@ -80,12 +80,12 @@
 
 
     <TextView
-        android:id="@+id/tv_expenditure_label"
+        android:id="@+id/tv_expenses_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="Expenditure"
+        android:text="Expenses"
         android:textColor="@color/white"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -105,7 +105,7 @@
         app:layout_constraintBottom_toTopOf="@+id/btn_add_expenses"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_expenditure_label"
+        app:layout_constraintTop_toBottomOf="@+id/tv_expenses_label"
         tools:listitem="@layout/item_list_expenses" />
 
     <Button
@@ -118,6 +118,50 @@
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/ll_empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/empty_category_title"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:gravity="center"
+            android:text="@string/empty_category_description"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="italic" />
+
+        <ImageView
+            android:layout_width="300dp"
+            android:layout_height="250dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_empty_list" />
+
+        <Button
+            android:id="@+id/btn_create_empty"
+            android:layout_width="160dp"
+            android:textColor="@color/white"
+            android:text="Add"
+            android:textSize="16sp"
+            android:backgroundTint="@color/green"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp" />
+
+    </LinearLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

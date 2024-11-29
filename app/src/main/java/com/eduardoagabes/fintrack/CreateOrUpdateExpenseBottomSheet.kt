@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.eduardoagabes.fintrack.CategoryEntity
 import com.eduardoagabes.fintrack.CategoryListAdapter
 import com.eduardoagabes.fintrack.CategoryUiData
 import com.eduardoagabes.fintrack.ExpensesUiData
@@ -18,7 +19,7 @@ import com.google.android.material.textfield.TextInputEditText
 import kotlin.math.exp
 
 class CreateOrUpdateExpenseBottomSheet(
-    private val userCategories: List<CategoryUiData>,
+    private val userCategories: List<CategoryEntity>,
     private val expense: ExpensesUiData? = null,
     private val onCreateClicked: (CategoryUiData, Double, String) -> Unit,
     private val onUpdateClicked: (CategoryUiData, Double, String, ExpensesUiData) -> Unit,
@@ -43,10 +44,17 @@ class CreateOrUpdateExpenseBottomSheet(
         val edtValue = view.findViewById<TextInputEditText>(R.id.tie_value_expense)
         val edtExpense = view.findViewById<TextInputEditText>(R.id.tie_expense)
 
+        val userCategoriesUiData = userCategories.map { entity ->
+            CategoryUiData(
+                id = entity.id,
+                category = entity.category,
+                isSelected = entity.isSelected,
+                color = entity.color
+            )
+        }.toMutableList()
+
         categoriesAdapter = CategoryListAdapter()
         rvCategories.adapter = categoriesAdapter
-
-        categoriesAdapter.submitList(userCategories)
 
         rvCategories.layoutManager =
             LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
@@ -55,22 +63,37 @@ class CreateOrUpdateExpenseBottomSheet(
             btnDelete.isVisible = false
             tvTitle.setText(R.string.create_expense_title)
             btnCreateOrUpdate.setText(R.string.create)
+
+            selectedCategory = null
+            userCategoriesUiData.forEach { it.isSelected = false }
+
         } else {
             tvTitle.setText(R.string.update_expense_title)
             btnCreateOrUpdate.setText(R.string.update)
+
             edtExpense.setText(expense.name)
             edtValue.setText(expense.value)
             btnDelete.isVisible = true
 
-            selectedCategory = userCategories.find { it.category == expense.category }
-            userCategories.forEach {
-                it.isSelected = it.category == expense.category
+            userCategoriesUiData.forEach { category ->
+                category.isSelected = category.category == expense.category
+                if (category.isSelected) {
+                    selectedCategory = category
+                }
             }
+        }
+        categoriesAdapter.submitList(userCategoriesUiData)
+
+        categoriesAdapter.setOnClickListener { category ->
+            userCategoriesUiData.forEach { it.isSelected = false }
+            category.isSelected = true
+            selectedCategory = category
+
             categoriesAdapter.notifyDataSetChanged()
         }
 
         btnDelete.setOnClickListener {
-            if(expense != null) {
+            if (expense != null) {
                 onDeleteClicked.invoke(expense)
                 dismiss()
             } else {
@@ -86,28 +109,12 @@ class CreateOrUpdateExpenseBottomSheet(
                 Snackbar.make(view, "Please fill all fields.", Snackbar.LENGTH_SHORT).show()
             } else {
                 if (expense == null) {
-                    onCreateClicked.invoke(
-                        selectedCategory!!,
-                        value ?: 0.0,
-                        expenseName
-                    )
+                    onCreateClicked.invoke(selectedCategory!!, value, expenseName)
                 } else {
-                    onUpdateClicked.invoke(
-                        selectedCategory!!,
-                        value ?: 0.0,
-                        expenseName,
-                        expense
-                    )
+                    onUpdateClicked.invoke(selectedCategory!!, value, expenseName, expense)
                 }
                 dismiss()
             }
-        }
-
-        categoriesAdapter.setOnClickListener { category ->
-            userCategories.forEach { it.isSelected = false }
-            category.isSelected = true
-            selectedCategory = category
-            categoriesAdapter.notifyDataSetChanged()
         }
 
         return view
