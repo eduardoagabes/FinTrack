@@ -6,7 +6,7 @@
     <string name="update_expense_title">Update expense</string>
     <string name="update">Update</string>
     <string name="category_delete_title">Important</string>
-    <string name="category_delete_description">By deleting a category you will delete all tasks with this category, are you sare? </string>
+    <string name="category_delete_description">By deleting a category you will delete all expenses with this category, are you sare? </string>
     <string name="delete">Delete</string>
     <string name="empty_category_title">No category found!</string>
     <string name="empty_category_description">Please, add a new category</string>

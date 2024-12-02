@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.snackbar.Snackbar
 
 class CreateCategoryBottomSheet(
     private val onCreateClicked: (Int, Int) -> Unit,
@@ -35,9 +36,14 @@ class CreateCategoryBottomSheet(
         getCategory(listCategories)
 
         btnCreate.setOnClickListener {
-            val category = selectedCategory?.category ?: R.drawable.ic_home
-            onCreateClicked.invoke(category, selectedColor)
-            dismiss()
+
+            if (selectedCategory == null || rvColors == null) {
+                Snackbar.make(view, "Please fill all fields.", Snackbar.LENGTH_SHORT).show()
+            } else {
+                val category = selectedCategory?.category ?: R.drawable.ic_home
+                onCreateClicked.invoke(category, selectedColor)
+                dismiss()
+            }
         }
 
         rvColors.adapter = ColorAdapter(

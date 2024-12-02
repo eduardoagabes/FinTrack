@@ -1,0 +1,9 @@
+<!-- res/drawable/splash_bg.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/background_color" /> <!-- Cor de fundo -->
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/logo_sreen" /> <!-- Logo do Splash -->
+    </item>
+</layer-list>

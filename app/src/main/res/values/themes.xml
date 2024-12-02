@@ -6,4 +6,10 @@
     </style>
 
     <style name="Theme.FinTrack" parent="Base.Theme.FinTrack" />
+
+    <style name="SplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_bg</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
 </resources>
+
