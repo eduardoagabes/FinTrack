@@ -1,5 +1,5 @@
 # 💸 FinTrack
-FinTrack es una aplicación móvil para Android diseñada para gestionar tus gastos de manera eficiente, desarrollada como parte de un desafío de la comunidad DevSpace. 🚀
+FinTrack es una aplicación móvil para Android diseñada para gestionar tus gastos de manera eficiente. 🚀
 
 # 🛠️ Características principales
 
